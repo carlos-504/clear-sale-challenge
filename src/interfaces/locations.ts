@@ -1,5 +1,5 @@
-interface ResultsLocation {
-   id: 1;
+export interface ResultsLocation {
+   id: number;
    name: string;
    type: string;
    dimension: string;
