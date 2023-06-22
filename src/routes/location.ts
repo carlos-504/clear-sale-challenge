@@ -8,5 +8,6 @@ router.get('/location', locationController.list);
 router.get('/location/:id', locationController.listById);
 router.post('/location', locationController.insert);
 router.put('/location/:id', locationController.update);
+router.delete('/location/:id', locationController.delete);
 
 export default router;

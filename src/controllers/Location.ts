@@ -10,11 +10,13 @@ export default class Location {
    private static apiUrl: string;
    private static locationsItems: ResultsLocation[];
    private static isUpdated: boolean;
+   private static isDeleted: boolean;
 
    constructor() {
       Location.apiUrl = process.env.BASE_URL as string;
       Location.locationsItems = [];
       Location.isUpdated = false;
+      Location.isDeleted = false;
       this.listPagination();
    }
 
@@ -39,7 +41,7 @@ export default class Location {
          }
          let ret = Utils.responseSuccess(title, description, locations.data.results);
 
-         if (Location.locationsItems.length > 126 || Location.isUpdated) {
+         if (Location.locationsItems.length > 126 || Location.isUpdated || Location.isDeleted) {
             const startIndex = (parseInt(page as string) - 1) * 20;
             const endIndex = startIndex + 20;
 
@@ -72,7 +74,7 @@ export default class Location {
 
          let ret = Utils.responseSuccess<null | ResultsLocation>(title, description, null);
 
-         if (id > 126 || Location.isUpdated) {
+         if (id > 126 || Location.isUpdated || Location.isDeleted) {
             const newItem = Location.locationsItems.filter((item) => {
                return item.id == id;
             });
@@ -163,7 +165,7 @@ export default class Location {
 
    update(req: Request<{ id: number }>, res: Response): Response {
       logger.info('start request');
-      const title = 'Listagem de local por id';
+      const title = 'Atualização do local por id';
       try {
          const description = 'Local atualizado com sucesso';
          const { id } = req.params;
@@ -197,6 +199,39 @@ export default class Location {
       } catch (err) {
          logger.error('error on proccess');
          logger.error('update failed');
+         logger.error(err);
+
+         const { message, statusCode } = Utils.getErrorMessage(err);
+         const ret = Utils.responseFail(title, message, err);
+
+         logger.info('end request');
+         return res.status(statusCode).send(ret);
+      }
+   }
+
+   delete(req: Request<{ id: number }>, res: Response): Response {
+      logger.info('start request');
+      const title = 'Exclusão do local por id';
+      try {
+         const description = 'Local excluído com sucesso';
+         const { id } = req.params;
+
+         const verify = Location.locationsItems.some((location) => location.id == id);
+
+         if (!verify) {
+            throw new ClearError('O id do local não existe');
+         }
+
+         Location.locationsItems = Location.locationsItems.filter((location) => location.id != id);
+         Location.isDeleted = true;
+
+         const ret = Utils.responseSuccess(title, description, null);
+
+         logger.info('end request');
+         return res.send(ret);
+      } catch (err) {
+         logger.error('error on proccess');
+         logger.error('delete failed');
          logger.error(err);
 
          const { message, statusCode } = Utils.getErrorMessage(err);
