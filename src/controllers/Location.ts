@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import Utils from '../utils';
 import logger from '../config/logger';
 import { RespListLocation, ResultsLocation } from '../interfaces/locations';
-import locationArray from '../../mock.json';
 import ClearError from '../errors/clearError';
 
 export default class Location {
@@ -25,25 +24,27 @@ export default class Location {
       const title = 'Listagem dos locais';
       try {
          let description = 'Locais listados com sucesso';
-         let pageQuery = '';
+         let pageQuery = '?page=1';
          const { page } = req.query;
 
          if (page) {
             pageQuery = `?page=${page}`;
          }
 
-         const locations = await axios.get<any, AxiosResponse<RespListLocation>>(
-            `${Location.apiUrl}/location${pageQuery}`
-         );
+         const locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location${pageQuery}`);
 
-         if (!locations.data.results.length) {
+         const locationsSize = locations.data.results.length;
+
+         if (!locationsSize) {
             description = 'Nenhum local encontrado';
          }
+
          let ret = Utils.responseSuccess(title, description, locations.data.results);
 
-         if (Location.locationsItems.length > 126 || Location.isUpdated || Location.isDeleted) {
-            const startIndex = (parseInt(page as string) - 1) * 20;
-            const endIndex = startIndex + 20;
+         if (Location.locationsItems.length > locationsSize || Location.isUpdated || Location.isDeleted) {
+            const PER_PAGE = 20;
+            const startIndex = (parseInt(page as string) - 1) * PER_PAGE;
+            const endIndex = startIndex + PER_PAGE;
 
             const newItems = Location.locationsItems.slice(startIndex, endIndex);
 
@@ -87,9 +88,7 @@ export default class Location {
             return res.send(ret);
          }
 
-         const location = await axios.get<any, AxiosResponse<ResultsLocation>>(
-            `${Location.apiUrl}/location/${id}`
-         );
+         const location = await axios.get<ResultsLocation>(`${Location.apiUrl}/location/${id}`);
          ret = Utils.responseSuccess(title, description, location.data);
 
          logger.info('end request');
@@ -143,18 +142,10 @@ export default class Location {
 
    async listPagination(): Promise<void> {
       try {
-         let locations = await axios.get<any, AxiosResponse<RespListLocation>>(
-            `${Location.apiUrl}/location`
-         );
+         let locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location`);
 
-         const countPages = locations.data.info.pages;
-         let count = 1;
-
-         for (count; count <= countPages; count++) {
-            locations = await axios.get<any, AxiosResponse<RespListLocation>>(
-               `${Location.apiUrl}/location?page=${count}`
-            );
-
+         while (locations.data.info.next) {
+            locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location`);
             Location.locationsItems.push(...locations.data.results);
          }
       } catch (err) {
@@ -178,8 +169,6 @@ export default class Location {
                   url: location.url,
                   created: location.created,
                };
-
-               return location;
             }
             return location;
          });
