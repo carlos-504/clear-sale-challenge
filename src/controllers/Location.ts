@@ -11,7 +11,7 @@ export default class Location {
 
    constructor() {
       Location.apiUrl = process.env.BASE_URL as string;
-      Location.locationsItems = [...locationArray];
+      Location.locationsItems = [];
    }
 
    async list(req: Request, res: Response): Promise<Response> {
@@ -20,20 +20,19 @@ export default class Location {
       try {
          let description = 'Locais listados com sucesso';
 
-         const locations = await axios.get<
-            any,
-            AxiosResponse<RespListLocation>
-         >(`${process.env.BASE_URL}/location`);
+         const locations = await axios.get<any, AxiosResponse<RespListLocation>>(
+            `${Location.apiUrl}/location`
+         );
 
          if (!locations.data.results.length) {
             description = 'Nenhum local encontrado';
          }
 
-         const ret = Utils.responseSuccess(
-            title,
-            description,
-            locations.data.results
-         );
+         if (Location.locationsItems.length === 0) {
+            Location.locationsItems.push(...locations.data.results);
+         }
+
+         const ret = Utils.responseSuccess(title, description, Location.locationsItems);
 
          logger.info('end request');
          return res.send(ret);
@@ -50,10 +49,7 @@ export default class Location {
       }
    }
 
-   async listById(
-      req: Request<{ id: string }>,
-      res: Response
-   ): Promise<Response> {
+   async listById(req: Request<{ id: number }>, res: Response): Promise<Response> {
       logger.info('start request');
       const title = 'Listagem de local por id';
       try {
@@ -61,9 +57,8 @@ export default class Location {
          let description = 'Local listado com sucesso';
 
          const location = await axios.get<any, AxiosResponse<ResultsLocation>>(
-            `${process.env.BASE_URL}/location/${id}`
+            `${Location.apiUrl}/location/${id}`
          );
-
          const ret = Utils.responseSuccess(title, description, location.data);
 
          logger.info('end request');
@@ -85,23 +80,18 @@ export default class Location {
       logger.info('start request');
       const title = 'Inserção de local Rick e Morty';
       try {
-         const { id, ...rest }: ResultsLocation =
-            req.body || ({} as ResultsLocation);
+         const { id, ...rest }: ResultsLocation = req.body || ({} as ResultsLocation);
          const description = 'Local inserido com sucesso';
          const locationsItems = Location.locationsItems;
 
          locationsItems.push({
-            id: locationArray.length + 1,
+            id: locationsItems.length + 1,
             ...rest,
          });
 
          const itemIndex = locationsItems.length - 1;
 
-         const ret = Utils.responseSuccess(
-            title,
-            description,
-            locationsItems[itemIndex]
-         );
+         const ret = Utils.responseSuccess(title, description, locationsItems[itemIndex]);
 
          logger.info('end request');
          return res.send(ret);
