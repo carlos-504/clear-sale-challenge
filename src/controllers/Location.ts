@@ -4,14 +4,17 @@ import Utils from '../utils';
 import logger from '../config/logger';
 import { RespListLocation, ResultsLocation } from '../interfaces/locations';
 import locationArray from '../../mock.json';
+import ClearError from '../errors/clearError';
 
 export default class Location {
    private static apiUrl: string;
    private static locationsItems: ResultsLocation[];
+   private static isUpdated: boolean;
 
    constructor() {
       Location.apiUrl = process.env.BASE_URL as string;
       Location.locationsItems = [];
+      Location.isUpdated = false;
       this.listPagination();
    }
 
@@ -36,7 +39,7 @@ export default class Location {
          }
          let ret = Utils.responseSuccess(title, description, locations.data.results);
 
-         if (Location.locationsItems.length > 126) {
+         if (Location.locationsItems.length > 126 || Location.isUpdated) {
             const startIndex = (parseInt(page as string) - 1) * 20;
             const endIndex = startIndex + 20;
 
@@ -69,9 +72,8 @@ export default class Location {
 
          let ret = Utils.responseSuccess<null | ResultsLocation>(title, description, null);
 
-         if (id > 126) {
+         if (id > 126 || Location.isUpdated) {
             const newItem = Location.locationsItems.filter((item) => {
-               console.log(item)
                return item.id == id;
             });
 
@@ -114,7 +116,7 @@ export default class Location {
          locationsItems.push({
             id,
             ...req.body,
-            url: `https://rickandmortyapi.com/api/location/${id}`,
+            url: `${Location.apiUrl}/api/location/${id}`,
             created: new Date(),
          });
 
@@ -153,11 +155,55 @@ export default class Location {
 
             Location.locationsItems.push(...locations.data.results);
          }
-
-         console.log('aaaaaaa')
       } catch (err) {
          logger.error('error on pagination');
          logger.error(err);
+      }
+   }
+
+   update(req: Request<{ id: number }>, res: Response): Response {
+      logger.info('start request');
+      const title = 'Listagem de local por id';
+      try {
+         const description = 'Local atualizado com sucesso';
+         const { id } = req.params;
+
+         Location.locationsItems = Location.locationsItems.map((location) => {
+            if (id == location.id) {
+               location = {
+                  id: parseInt(id.toString()),
+                  ...req.body,
+                  url: location.url,
+                  created: location.created,
+               };
+
+               return location;
+            }
+            return location;
+         });
+
+         Location.isUpdated = true;
+
+         const updateLocal = Location.locationsItems.filter((item) => item.id == id);
+
+         if (!updateLocal.length) {
+            throw new ClearError('Não é possível atualizar o item');
+         }
+
+         const ret = Utils.responseSuccess(title, description, updateLocal[0]);
+
+         logger.info('end request');
+         return res.send(ret);
+      } catch (err) {
+         logger.error('error on proccess');
+         logger.error('update failed');
+         logger.error(err);
+
+         const { message, statusCode } = Utils.getErrorMessage(err);
+         const ret = Utils.responseFail(title, message, err);
+
+         logger.info('end request');
+         return res.status(statusCode).send(ret);
       }
    }
 }
