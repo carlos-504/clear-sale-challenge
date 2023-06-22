@@ -12,6 +12,7 @@ export default class Location {
    constructor() {
       Location.apiUrl = process.env.BASE_URL as string;
       Location.locationsItems = [];
+      this.listPagination();
    }
 
    async list(req: Request, res: Response): Promise<Response> {
@@ -19,20 +20,30 @@ export default class Location {
       const title = 'Listagem dos locais';
       try {
          let description = 'Locais listados com sucesso';
+         let pageQuery = '';
+         const { page } = req.query;
+
+         if (page) {
+            pageQuery = `?page=${page}`;
+         }
 
          const locations = await axios.get<any, AxiosResponse<RespListLocation>>(
-            `${Location.apiUrl}/location`
+            `${Location.apiUrl}/location${pageQuery}`
          );
 
          if (!locations.data.results.length) {
             description = 'Nenhum local encontrado';
          }
+         let ret = Utils.responseSuccess(title, description, locations.data.results);
 
-         if (Location.locationsItems.length === 0) {
-            Location.locationsItems.push(...locations.data.results);
+         if (Location.locationsItems.length > 126) {
+            const startIndex = (parseInt(page as string) - 1) * 20;
+            const endIndex = startIndex + 20;
+
+            const newItems = Location.locationsItems.slice(startIndex, endIndex);
+
+            ret = Utils.responseSuccess(title, description, newItems);
          }
-
-         const ret = Utils.responseSuccess(title, description, Location.locationsItems);
 
          logger.info('end request');
          return res.send(ret);
@@ -56,10 +67,26 @@ export default class Location {
          const { id } = req.params;
          let description = 'Local listado com sucesso';
 
+         let ret = Utils.responseSuccess<null | ResultsLocation>(title, description, null);
+
+         if (id > 126) {
+            const newItem = Location.locationsItems.filter((item) => {
+               console.log(item)
+               return item.id == id;
+            });
+
+            if (!newItem.length) {
+               description = 'Local não encontrado';
+            }
+
+            ret = Utils.responseSuccess(title, description, newItem[0] || null);
+            return res.send(ret);
+         }
+
          const location = await axios.get<any, AxiosResponse<ResultsLocation>>(
             `${Location.apiUrl}/location/${id}`
          );
-         const ret = Utils.responseSuccess(title, description, location.data);
+         ret = Utils.responseSuccess(title, description, location.data);
 
          logger.info('end request');
          return res.send(ret);
@@ -80,13 +107,15 @@ export default class Location {
       logger.info('start request');
       const title = 'Inserção de local Rick e Morty';
       try {
-         const { id, ...rest }: ResultsLocation = req.body || ({} as ResultsLocation);
          const description = 'Local inserido com sucesso';
          const locationsItems = Location.locationsItems;
+         const id = locationsItems.length + 1;
 
          locationsItems.push({
-            id: locationsItems.length + 1,
-            ...rest,
+            id,
+            ...req.body,
+            url: `https://rickandmortyapi.com/api/location/${id}`,
+            created: new Date(),
          });
 
          const itemIndex = locationsItems.length - 1;
@@ -105,6 +134,30 @@ export default class Location {
 
          logger.info('end request');
          return res.status(statusCode).send(ret);
+      }
+   }
+
+   async listPagination(): Promise<void> {
+      try {
+         let locations = await axios.get<any, AxiosResponse<RespListLocation>>(
+            `${Location.apiUrl}/location`
+         );
+
+         const countPages = locations.data.info.pages;
+         let count = 1;
+
+         for (count; count <= countPages; count++) {
+            locations = await axios.get<any, AxiosResponse<RespListLocation>>(
+               `${Location.apiUrl}/location?page=${count}`
+            );
+
+            Location.locationsItems.push(...locations.data.results);
+         }
+
+         console.log('aaaaaaa')
+      } catch (err) {
+         logger.error('error on pagination');
+         logger.error(err);
       }
    }
 }
