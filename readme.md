@@ -49,16 +49,16 @@ yarn job
 
     	CLEAR-SALE-CHALLENGE
     		|
-            |-- src (Código fonte)
-    		|
-                |-- config (Arquivos de configuração)
-                |-- controllers (Camada de regras de negócio da aplicação)
-    			|-- errors (Erros personalizados)
-    		  	|-- interfaces (interfaces dos modelos)
-    			|-- jobs (Serviços individuais)
-                |-- routes (Endpoints da aplicação)
-    			|-- utils (Recursos reaproveitados da aplicação)
-    			|-- app.ts (Configuração do servidor)
+                    |-- src (Código fonte)
+            	|       |
+                    |       |-- config (Arquivos de configuração)
+                    |       |-- controllers (Camada de regras de negócio da aplicação)
+                    |       |-- errors (Erros personalizados)
+                    |       |-- interfaces (interfaces dos modelos)
+                    |       |-- jobs (Serviços individuais)
+                    |       |-- routes (Endpoints da aplicação)
+                    |       |-- utils (Recursos reaproveitados da aplicação)
+                    |       |-- app.ts (Configuração do servidor)
     		|-- test (Testes unitários)
     		|-- .env (Variáveis de ambiente)
     		|-- .env.example (Exemplo das variáveis de ambiente)
