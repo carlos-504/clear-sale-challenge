@@ -13,7 +13,7 @@ Baixe na sua máquina as seguintes dependências:
 
 ## Aplicação
 
-A aplicação é executada a partir de comandos yarn do NodeTS. O projeto usa 3 comandos yarn
+A aplicação é executada a partir de comandos yarn do NodeTS. O projeto usa 5 comandos yarn
 
 -  Executa a aplicação e iniciar o servidor.
 
@@ -66,7 +66,7 @@ yarn job
     		|-- package.json
     		|-- server.ts (Arquivo de inicialização)
     		|-- swagger.json (JSON fonte da documentação)
-    		|-- tsconfig.json (COnfigurações de compilação do TypeScript)
+    		|-- tsconfig.json (Configurações de compilação do TypeScript)
 
 ## Instalação
 
@@ -106,7 +106,7 @@ onde é possível realizar uma comunicação com o servidor para obter, incluir 
 | ---------------------------------------------- | -------------------- | -------------- | ------------------------------------------------------------------ | --------------------- |
 | Insere um novo local na lista de Rick e Morty  | POST                 | /location      | name: string, type: string, dimension: string, residents: [string] | novo local inserido   |
 | Lista de todos os locais de Rick e Morty       | GET                  | /location      |                                                                    | locais Rick e Morty   |
-| Lista um local pelo id                         | GET                  | /location/{id} |                                                                    | Local buscado pelo id |
+| Lista um local pelo id                         | GET                  | /location/{id} |                                                                    | local buscado pelo id |
 | Atualiza um dos locais de Rick e Morty pelo id | PUT                  | /location/{id} | name: string, type: string, dimension: string, residents: [string] | local atualizado      |
 | Exclui um local de Rick e Morty pelo id        | DELETE               | /location/{id} |                                                                    | null                  |
 
