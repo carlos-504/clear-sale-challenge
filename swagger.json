@@ -177,7 +177,7 @@
                   "type": "string"
                },
                "residents": {
-                  "type": ["string"]
+                  "type": "[string]"
                }
             }
          }
