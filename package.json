@@ -4,12 +4,12 @@
    "main": "server.ts",
    "license": "MIT",
    "scripts": {
-      "start": "node ./lib/server.js",
+      "prod": "node ./lib/server.js",
       "dev": "tsnd --respawn server.ts",
       "test": "jest --detectOpenHandles",
       "clean": "rimraf lib/",
       "copy-files": "copyfiles -u 1 lib/src",
-      "build": "npm run clean && tsc && npm run copy-files",
+      "build": "yarn clean && tsc && yarn copy-files",
       "job": "tsnd src/jobs/countVowels/index.ts"
    },
    "dependencies": {
