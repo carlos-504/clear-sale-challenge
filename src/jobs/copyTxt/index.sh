@@ -2,7 +2,7 @@
 cp "./origin"/*.txt "./destiny"
 
 if [ $? -eq 0 ]; then
-  echo "Cópia dos arquivos .txt concluída com sucesso."
+  echo "files copied successfully"
 else
-  echo "Ocorreu um erro ao copiar os arquivos."
+  echo "error copying files"
 fi
