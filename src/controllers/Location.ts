@@ -117,7 +117,7 @@ export default class Location {
          locationsItems.push({
             id,
             ...req.body,
-            url: `${Location.apiUrl}/api/location/${id}`,
+            url: `${Location.apiUrl}/location/${id}`,
             created: new Date(),
          });
 
@@ -145,7 +145,7 @@ export default class Location {
          let locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location`);
 
          while (locations.data.info.next) {
-            locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location`);
+            locations = await axios.get(locations.data.info.next);
             Location.locationsItems.push(...locations.data.results);
          }
       } catch (err) {
