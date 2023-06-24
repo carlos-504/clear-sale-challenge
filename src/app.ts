@@ -3,6 +3,8 @@ import 'dotenv/config';
 import compression from 'compression';
 import helmet from 'helmet';
 import routesMap from './routes';
+import swaggerDocs from '../swagger.json';
+import swaggerUI from 'swagger-ui-express';
 
 class App {
    public server: Express;
@@ -19,6 +21,7 @@ class App {
       this.server.use(helmet());
       this.server.use(express.json());
       this.server.use(express.urlencoded({ extended: true }));
+      this.server.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
    }
 
    routes(app: Express): void {

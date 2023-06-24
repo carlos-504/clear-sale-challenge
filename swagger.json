@@ -1,0 +1,186 @@
+{
+   "openapi": "3.0.0",
+   "info": {
+      "title": "CLEAR-SALE-API",
+      "description": "Teste técnico Clear Sale",
+      "contact": {
+         "email": "carllosshennriique@gmail.com"
+      },
+      "version": "1.0.0"
+   },
+   "servers": [
+      {
+         "url": "http://localhost:3000",
+         "description": "Serviço de teste da CLEAR-SALE-API"
+      }
+   ],
+   "tags": [
+      {
+         "name": "location",
+         "description": "Everthing about location"
+      }
+   ],
+   "paths": {
+      "/location": {
+         "post": {
+            "summary": "Insere um novo local",
+            "description": "Insere um novo local na lista de Rick e Morty",
+            "tags": ["location"],
+            "requestBody": {
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/BodyLocation"
+                     },
+                     "examples": {
+                        "BodyLocation": {
+                           "value": {
+                              "name": "Brasil",
+                              "type": "Earth",
+                              "dimension": "C-137",
+                              "residents": ["https://rickandmortyapi.com/api/character/780", "https://rickandmortyapi.com/api/character/787"]
+                           }
+                        }
+                     }
+                  }
+               }
+            },
+            "responses": {
+               "400": {
+                  "description": "Bad request"
+               },
+               "200": {
+                  "description": "Local atualizado com sucesso"
+               }
+            }
+         },
+         "get": {
+            "summary": "Listagem dos locais",
+            "description": "Lista de todos os locais de Rick e Morty",
+            "tags": ["location"],
+            "responses": {
+               "400": {
+                  "description": "Erro no processo"
+               },
+               "200": {
+                  "description": "Locais listados com sucesso"
+               }
+            }
+         }
+      },
+      "/location/{id}": {
+         "get": {
+            "summary": "Listagem de local por id",
+            "description": "Lista um local de Rick e Morty através do id passado por parâmetro",
+            "tags": ["location"],
+            "parameters": [
+               {
+                  "in": "path",
+                  "name": "id",
+                  "required": true,
+                  "description": "Id do local de Rick e Morty",
+                  "schema": {
+                     "type": "int"
+                  }
+               }
+            ],
+            "responses": {
+               "400": {
+                  "description": "Bad request"
+               },
+               "200": {
+                  "description": "Local listado com sucesso || Local não encontrado"
+               }
+            }
+         },
+         "delete": {
+            "summary": "Exclui um local pelo id",
+            "description": "Exclui um local de Rick e Morty",
+            "tags": ["location"],
+            "parameters": [
+               {
+                  "in": "path",
+                  "name": "id",
+                  "required": true,
+                  "description": "Id do local de Rick e Morty",
+                  "schema": {
+                     "type": "int"
+                  }
+               }
+            ],
+            "responses": {
+               "400": {
+                  "description": "Bad request"
+               },
+               "200": {
+                  "description": "Local excluído com sucesso"
+               }
+            }
+         },
+         "put": {
+            "summary": "Atualização de local por id",
+            "description": "Atualiza um dos locais de Rick e Morty pelo id",
+            "tags": ["location"],
+            "parameters": [
+               {
+                  "in": "path",
+                  "name": "id",
+                  "required": true,
+                  "description": "Id do local de Rick e Morty",
+                  "schema": {
+                     "type": "int"
+                  }
+               }
+            ],
+            "requestBody": {
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/BodyLocation"
+                     },
+                     "examples": {
+                        "BodyLocation": {
+                           "value": {
+                              "name": "Brasil",
+                              "type": "Earth",
+                              "dimension": "C-137",
+                              "residents": ["https://rickandmortyapi.com/api/character/780", "https://rickandmortyapi.com/api/character/787"]
+                           }
+                        }
+                     }
+                  }
+               }
+            },
+            "responses": {
+               "400": {
+                  "description": "Bad request"
+               },
+               "200": {
+                  "description": "Local atualizado com sucesso"
+               }
+            }
+         }
+      }
+   },
+   "components": {
+      "schemas": {
+         "BodyLocation": {
+            "type": "object",
+            "properties": {
+               "name": {
+                  "type": "string"
+               },
+               "type": {
+                  "type": "string"
+               },
+               "dimension": {
+                  "type": "string"
+               },
+               "residents": {
+                  "type": ["string"]
+               }
+            }
+         }
+      }
+   }
+}
