@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { Request, Response } from 'express';
 import Utils from '../utils';
 import logger from '../config/logger';
@@ -57,6 +57,13 @@ export default class Location {
          logger.error('error on proccess');
          logger.error('list locations failed');
          logger.error(err);
+
+         if (err instanceof AxiosError) {
+            const ret = Utils.responseFail(title, 'Erro ao executar integração', err.message);
+
+            logger.info('end request');
+            return res.status(err.response?.status!).send(ret);
+         }
 
          const { message, statusCode } = Utils.getErrorMessage(err);
          const ret = Utils.responseFail(title, message, err);
@@ -143,6 +150,7 @@ export default class Location {
    async listPagination(): Promise<void> {
       try {
          let locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location`);
+         Location.locationsItems.push(...locations.data.results);
 
          while (locations.data.info.next) {
             locations = await axios.get(locations.data.info.next);

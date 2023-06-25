@@ -5,7 +5,7 @@ export interface ResultsLocation {
    dimension: string;
    residents: string[];
    url: string;
-   created: Date;
+   created: string;
 }
 
 export interface RespListLocation {
