@@ -2,12 +2,12 @@ import axios, { AxiosError } from 'axios';
 import { Request, Response } from 'express';
 import Utils from '../utils';
 import logger from '../config/logger';
-import { RespListLocation, ResultsLocation } from '../interfaces/locations';
 import ClearError from '../errors/clearError';
+import { RespListLocation, ResultsLocation, InputLocationReq } from '../interfaces/locations';
 
 class Location {
    private static apiUrl: string;
-   public static locationsItems: ResultsLocation[];
+   private static locationsItems: ResultsLocation[];
    private static isUpdated: boolean;
    private static isDeleted: boolean;
 
@@ -104,13 +104,15 @@ class Location {
       }
    }
 
-   insert(req: Request, res: Response): Response {
+   insert(req: InputLocationReq, res: Response): Response {
       logger.info('start request');
       const title = 'Inserção de local Rick e Morty';
       try {
          const description = 'Local inserido com sucesso';
          const locationsItems = Location.locationsItems;
          const id = locationsItems.length + 1;
+
+         Utils.validatesFieldsLocations(req.body);
 
          locationsItems.push({
             id,
@@ -130,19 +132,18 @@ class Location {
          logger.error('insert location failed');
          logger.error(err);
 
-         const { message, statusCode } = Utils.getErrorMessage(err);
-         const ret = Utils.responseFail(title, message, err);
+         const { statusCode, description, message } = Utils.getErrorMessage(err);
+         const ret = Utils.responseFail(title, description, message);
 
          logger.info('end request');
          return res.status(statusCode).send(ret);
       }
    }
 
-   async listPagination(): Promise<void> {
+   async listPagination(): Promise<number> {
+      let locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location`);
+      Location.locationsItems.push(...locations.data.results);
       try {
-         let locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location`);
-         Location.locationsItems.push(...locations.data.results);
-
          while (locations.data.info.next) {
             locations = await axios.get(locations.data.info.next);
             Location.locationsItems.push(...locations.data.results);
@@ -151,6 +152,7 @@ class Location {
          logger.error('error on pagination');
          logger.error(err);
       }
+      return Location.locationsItems.length;
    }
 
    update(req: Request<{ id: number }>, res: Response): Response {
@@ -177,7 +179,7 @@ class Location {
          const updateLocal = Location.locationsItems.filter((item) => item.id == id);
 
          if (!updateLocal.length) {
-            throw new ClearError('Não é possível atualizar o item');
+            throw new ClearError({ message: 'Não é possível atualizar o item', statusCode: 400, description: '' });
          }
 
          const ret = Utils.responseSuccess(title, description, updateLocal[0]);
@@ -207,7 +209,7 @@ class Location {
          const verify = Location.locationsItems.some((location) => location.id == id);
 
          if (!verify) {
-            throw new ClearError('O id do local não existe');
+            throw new ClearError({ message: 'O id do local não existe', statusCode: 400, description: '' });
          }
 
          Location.locationsItems = Location.locationsItems.filter((location) => location.id != id);
