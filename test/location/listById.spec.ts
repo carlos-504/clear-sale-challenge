@@ -18,14 +18,14 @@ describe('LocationController - List by Id', () => {
    test('must make a request to the endpoint /location/{id} and list locations by id', async () => {
       const { text, status } = await req(server).get(`/location/124`);
 
-      const mockLocation = {
+      const mockLocation: ResultsLocation = {
          id: 124,
          name: 'Slartivart',
          type: 'Planet',
          dimension: 'Replacement Dimension',
          residents: ['https://rickandmortyapi.com/api/character/797'],
          url: 'https://rickandmortyapi.com/api/location/124',
-         created: '2021-11-02T13:07:27.619Z',
+         created: new Date('2021-11-02T13:07:27.619Z'),
       };
 
       const response: ResponseInt<ResultsLocation> = JSON.parse(text);
