@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import { Request, Express } from 'express';
 
 export interface ResultsLocation {
    id?: number;
@@ -22,4 +22,12 @@ export interface RespListLocation {
 
 export interface InputLocationReq extends Request {
    body: ResultsLocation;
+}
+
+export interface QueryReq {
+   // Defina a estrutura e os tipos esperados para req.query
+   // Exemplo:
+   page: number;
+   per_page: number;
+   // ...
 }

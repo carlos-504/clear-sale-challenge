@@ -3,52 +3,43 @@ import { Request, Response } from 'express';
 import Utils from '../utils';
 import logger from '../config/logger';
 import ClearError from '../errors/clearError';
-import { RespListLocation, ResultsLocation, InputLocationReq } from '../interfaces/locations';
+import { RespListLocation, ResultsLocation, InputLocationReq, QueryReq } from '../interfaces/locations';
 
 class Location {
    private static apiUrl: string;
    private static locationsItems: ResultsLocation[];
-   private static isUpdated: boolean;
-   private static isDeleted: boolean;
 
    constructor() {
       Location.apiUrl = process.env.BASE_URL as string;
       Location.locationsItems = [];
-      Location.isUpdated = false;
-      Location.isDeleted = false;
    }
 
-   async list(req: Request, res: Response): Promise<Response> {
+   async list(req: Request<any, any, any, QueryReq>, res: Response): Promise<Response> {
       logger.info('start request');
       const title = 'Listagem dos locais';
       try {
          let description = 'Locais listados com sucesso';
-         let pageQuery = '?page=1';
-         const { page } = req.query;
+         let { page, per_page } = req.query;
 
-         if (page) {
-            pageQuery = `?page=${page}`;
+         if (!page) {
+            page = 1;
          }
 
-         const locations = await axios.get<RespListLocation>(`${Location.apiUrl}/location${pageQuery}`);
+         if (!per_page) {
+            per_page = 20;
+         }
 
-         const locationsSize = locations.data.results.length;
+         const PER_PAGE = per_page;
+         const startIndex = (page - 1) * PER_PAGE;
+         const endIndex = startIndex + PER_PAGE;
 
-         if (!locationsSize) {
+         const newItems = Location.locationsItems.slice(startIndex, endIndex);
+
+         if (!newItems.length) {
             description = 'Nenhum local encontrado';
          }
 
-         let ret = Utils.responseSuccess(title, description, locations.data.results);
-
-         if (Location.locationsItems.length > locationsSize || Location.isUpdated || Location.isDeleted) {
-            const PER_PAGE = 20;
-            const startIndex = (parseInt(page as string) - 1) * PER_PAGE;
-            const endIndex = startIndex + PER_PAGE;
-
-            const newItems = Location.locationsItems.slice(startIndex, endIndex);
-
-            ret = Utils.responseSuccess(title, description, newItems);
-         }
+         const ret = Utils.responseSuccess(title, description, newItems);
 
          logger.info('end request');
          return res.send(ret);
@@ -72,7 +63,7 @@ class Location {
       }
    }
 
-   async listById(req: Request, res: Response): Promise<Response> {
+   async listById(req: Request<{ id: number }>, res: Response): Promise<Response> {
       logger.info('start request');
       const title = 'Listagem de local por id';
       try {
@@ -80,14 +71,18 @@ class Location {
          let description = 'Local listado com sucesso';
 
          const newItem = Location.locationsItems.filter((item) => {
-            return item.id == parseInt(id);
+            return item.id == id;
          });
 
          if (!newItem.length) {
-            description = 'Local não encontrado';
+            throw new ClearError({
+               message: `location id ${id} was not exist`,
+               statusCode: 400,
+               description: `O local de id ${id} não existe`,
+            });
          }
 
-         const ret = Utils.responseSuccess(title, description, newItem[0] || null);
+         const ret = Utils.responseSuccess(title, description, newItem[0]);
 
          logger.info('end request');
          return res.send(ret);
@@ -96,8 +91,8 @@ class Location {
          logger.error('list location by id failed');
          logger.error(err);
 
-         const { message, statusCode } = Utils.getErrorMessage(err);
-         const ret = Utils.responseFail(title, message, err);
+         const { message, statusCode, description } = Utils.getErrorMessage(err);
+         const ret = Utils.responseFail(title, description, message);
 
          logger.info('end request');
          return res.status(statusCode).send(ret);
@@ -176,12 +171,14 @@ class Location {
             return location;
          });
 
-         Location.isUpdated = true;
-
          const updateLocal = Location.locationsItems.filter((item) => item.id == id);
 
          if (!updateLocal.length) {
-            throw new ClearError({ message: `the location of id ${id} not found`, statusCode: 400, description: `O local de id ${id} não existe` });
+            throw new ClearError({
+               message: `the location of id ${id} not found`,
+               statusCode: 400,
+               description: `O local de id ${id} não existe`,
+            });
          }
 
          const ret = Utils.responseSuccess(title, description, updateLocal[0]);
@@ -211,11 +208,14 @@ class Location {
          const verify = Location.locationsItems.some((location) => location.id == id);
 
          if (!verify) {
-            throw new ClearError({ message: `the location of id ${id} not found`, statusCode: 400, description: `O local de id ${id} não existe` });
+            throw new ClearError({
+               message: `the location of id ${id} not found`,
+               statusCode: 400,
+               description: `O local de id ${id} não existe`,
+            });
          }
 
          Location.locationsItems = Location.locationsItems.filter((location) => location.id != id);
-         Location.isDeleted = true;
 
          const ret = Utils.responseSuccess(title, description, null);
 
