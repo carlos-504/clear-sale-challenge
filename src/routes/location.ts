@@ -1,13 +1,12 @@
 import { Router } from 'express';
-import Location from '../controllers/Location';
+import location from '../controllers/Location';
 
 const router = Router();
-const locationController = new Location();
 
-router.get('/location', locationController.list);
-router.get('/location/:id', locationController.listById);
-router.post('/location', locationController.insert);
-router.put('/location/:id', locationController.update);
-router.delete('/location/:id', locationController.delete);
+router.get('/location', location.list);
+router.get('/location/:id', location.listById);
+router.post('/location', location.insert);
+router.put('/location/:id', location.update);
+router.delete('/location/:id', location.delete);
 
 export default router;

@@ -5,9 +5,9 @@ import logger from '../config/logger';
 import { RespListLocation, ResultsLocation } from '../interfaces/locations';
 import ClearError from '../errors/clearError';
 
-export default class Location {
+class Location {
    private static apiUrl: string;
-   private static locationsItems: ResultsLocation[];
+   public static locationsItems: ResultsLocation[];
    private static isUpdated: boolean;
    private static isDeleted: boolean;
 
@@ -16,7 +16,6 @@ export default class Location {
       Location.locationsItems = [];
       Location.isUpdated = false;
       Location.isDeleted = false;
-      this.listPagination();
    }
 
    async list(req: Request, res: Response): Promise<Response> {
@@ -73,30 +72,22 @@ export default class Location {
       }
    }
 
-   async listById(req: Request<{ id: number }>, res: Response): Promise<Response> {
+   async listById(req: Request, res: Response): Promise<Response> {
       logger.info('start request');
       const title = 'Listagem de local por id';
       try {
          const { id } = req.params;
          let description = 'Local listado com sucesso';
 
-         let ret = Utils.responseSuccess<null | ResultsLocation>(title, description, null);
+         const newItem = Location.locationsItems.filter((item) => {
+            return item.id == parseInt(id);
+         });
 
-         if (id > 126 || Location.isUpdated || Location.isDeleted) {
-            const newItem = Location.locationsItems.filter((item) => {
-               return item.id == id;
-            });
-
-            if (!newItem.length) {
-               description = 'Local não encontrado';
-            }
-
-            ret = Utils.responseSuccess(title, description, newItem[0] || null);
-            return res.send(ret);
+         if (!newItem.length) {
+            description = 'Local não encontrado';
          }
 
-         const location = await axios.get<ResultsLocation>(`${Location.apiUrl}/location/${id}`);
-         ret = Utils.responseSuccess(title, description, location.data);
+         const ret = Utils.responseSuccess(title, description, newItem[0] || null);
 
          logger.info('end request');
          return res.send(ret);
@@ -239,3 +230,5 @@ export default class Location {
       }
    }
 }
+
+export default new Location();
