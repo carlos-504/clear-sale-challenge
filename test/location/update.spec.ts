@@ -6,6 +6,9 @@ import location from '../../src/controllers/Location';
 import { ResponseInt } from '../../src/interfaces/utils';
 import { ResultsLocation } from '../../src/interfaces/locations';
 
+const successId = 98;
+const failedId = 200;
+
 describe('LocationController - Update', () => {
    beforeAll(async () => {
       logger.info('start update tests');
@@ -16,10 +19,8 @@ describe('LocationController - Update', () => {
       logger.info('tests concluded');
    });
 
-   test('must make a request to the endpoint put /location and update location', async () => {
-      const id = 98;
-
-      const { text, status } = await req(server).put(`/location/${id}`).send({
+   test(`must make a request to the endpoint put /location/${successId} and update location`, async () => {
+      const { text, status } = await req(server).put(`/location/${successId}`).send({
          name: 'Taguatinga',
          type: 'Planeta Terra',
          dimension: 'C-137',
@@ -33,18 +34,18 @@ describe('LocationController - Update', () => {
       expect(response.error).toBe(null);
       expect(response.message.description).toBe('Local atualizado com sucesso');
       expect(response.data).toEqual({
-         id,
+         id: successId,
          name: 'Taguatinga',
          type: 'Planeta Terra',
          dimension: 'C-137',
          residents: [],
-         url: `${process.env.BASE_URL}/location/${id}`,
+         url: `${process.env.BASE_URL}/location/${successId}`,
       });
       expect(status).toBe(200);
    });
 
-   test('must make a request to the endpoint put /location/{id} and return a field required error', async () => {
-      const { text, status } = await req(server).put(`/location/98`).send({
+   test(`must make a request to the endpoint put /location/${successId} and return a field required error`, async () => {
+      const { text, status } = await req(server).put(`/location/${successId}`).send({
          // name: 'Taguatinga',
          type: 'Planeta Terra',
          dimension: 'C-137',
@@ -59,10 +60,8 @@ describe('LocationController - Update', () => {
       expect(status).toBe(400);
    });
 
-   test('must make a request to the endpoint put /location/{id} and return a location not found error', async () => {
-      const id = 189;
-
-      const { text, status } = await req(server).put(`/location/${id}`).send({
+   test(`must make a request to the endpoint put /location/${failedId} and return a location not found error`, async () => {
+      const { text, status } = await req(server).put(`/location/${failedId}`).send({
          name: 'Taguatinga',
          type: 'Planeta Terra',
          dimension: 'C-137',
@@ -71,8 +70,8 @@ describe('LocationController - Update', () => {
       let response: ResponseInt<ResultsLocation> = JSON.parse(text);
 
       expect(response.success).toBe(false);
-      expect(response.error).toBe(`the location of id ${id} not found`);
-      expect(response.message.description).toBe(`O local de id ${id} não existe`);
+      expect(response.error).toBe(`the location of id ${failedId} not found`);
+      expect(response.message.description).toBe(`O local de id ${failedId} não existe`);
       expect(response.data).toBe(null);
       expect(status).toBe(400);
    });
