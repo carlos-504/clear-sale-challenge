@@ -1,16 +1,18 @@
-export default class ClearError<T> extends Error {
-   error: string;
+interface ClearErrorInt<T> {
+   message: string;
    statusCode: number;
-   data?: T
-   
-   constructor(
-      message: string,
-      statusCode: number = 400,
-      data?: T
-   ) {
-      super(message);
-      this.statusCode = statusCode;
-      this.error = message;
-      this.data = data;
+   description: string;
+   data?: T;
+}
+
+export default class ClearError<T> extends Error {
+   // error: string;
+   // statusCode: number;
+   // data?: T;
+   errorProperties: ClearErrorInt<T>;
+
+   constructor(errorProperties: ClearErrorInt<T>) {
+      super(errorProperties.message);
+      this.errorProperties = errorProperties;
    }
 }
