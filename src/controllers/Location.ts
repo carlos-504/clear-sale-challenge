@@ -162,6 +162,8 @@ class Location {
          const description = 'Local atualizado com sucesso';
          const { id } = req.params;
 
+         Utils.validatesFieldsLocations(req.body as ResultsLocation);
+
          Location.locationsItems = Location.locationsItems.map((location) => {
             if (id == location.id) {
                location = {
@@ -179,7 +181,7 @@ class Location {
          const updateLocal = Location.locationsItems.filter((item) => item.id == id);
 
          if (!updateLocal.length) {
-            throw new ClearError({ message: 'Não é possível atualizar o item', statusCode: 400, description: '' });
+            throw new ClearError({ message: `the location of id ${id} not found`, statusCode: 400, description: `O local de id ${id} não existe` });
          }
 
          const ret = Utils.responseSuccess(title, description, updateLocal[0]);
@@ -191,8 +193,8 @@ class Location {
          logger.error('update failed');
          logger.error(err);
 
-         const { message, statusCode } = Utils.getErrorMessage(err);
-         const ret = Utils.responseFail(title, message, err);
+         const { statusCode, description, message } = Utils.getErrorMessage(err);
+         const ret = Utils.responseFail(title, description, message);
 
          logger.info('end request');
          return res.status(statusCode).send(ret);
