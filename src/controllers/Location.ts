@@ -211,7 +211,7 @@ class Location {
          const verify = Location.locationsItems.some((location) => location.id == id);
 
          if (!verify) {
-            throw new ClearError({ message: 'O id do local não existe', statusCode: 400, description: '' });
+            throw new ClearError({ message: `the location of id ${id} not found`, statusCode: 400, description: `O local de id ${id} não existe` });
          }
 
          Location.locationsItems = Location.locationsItems.filter((location) => location.id != id);
@@ -226,8 +226,8 @@ class Location {
          logger.error('delete failed');
          logger.error(err);
 
-         const { message, statusCode } = Utils.getErrorMessage(err);
-         const ret = Utils.responseFail(title, message, err);
+         const { message, statusCode, description } = Utils.getErrorMessage(err);
+         const ret = Utils.responseFail(title, description, message);
 
          logger.info('end request');
          return res.status(statusCode).send(ret);
