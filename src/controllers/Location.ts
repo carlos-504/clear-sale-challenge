@@ -14,7 +14,7 @@ class Location {
       Location.locationsItems = [];
    }
 
-   async list(req: Request<any, any, any, QueryReq>, res: Response): Promise<Response> {
+   list(req: Request<any, any, any, QueryReq>, res: Response): Response {
       logger.info('start request');
       const title = 'Listagem dos locais';
       try {
@@ -56,7 +56,7 @@ class Location {
       }
    }
 
-   async listById(req: Request<{ id: number }>, res: Response): Promise<Response> {
+   listById(req: Request<{ id: number }>, res: Response): Response {
       logger.info('start request');
       const title = 'Listagem de local por id';
       try {
@@ -159,7 +159,7 @@ class Location {
          Location.locationsItems = Location.locationsItems.map((location) => {
             if (id == location.id) {
                location = {
-                  id: parseInt(id.toString()),
+                  id,
                   ...req.body,
                   url: location.url,
                   created: location.created,

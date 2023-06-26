@@ -6,8 +6,9 @@ export interface ResponseInt<T> {
    data: T;
 }
 
-export interface ErrorInt<T> {
+export interface ClearErrorInt<T> {
    message: string;
    statusCode: number;
+   description: string;
    data?: T;
 }
