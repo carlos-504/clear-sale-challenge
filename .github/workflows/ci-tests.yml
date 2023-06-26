@@ -8,6 +8,9 @@ jobs:
    test:
       runs-on: ubuntu-latest
 
+      env:
+        BASE_URL: ${{ secrets.BASE_URL }}
+
       steps:
          - name: Check the repository
            uses: actions/checkout@v2
