@@ -6,10 +6,10 @@ import location from '../../src/controllers/Location';
 import { ResponseInt } from '../../src/interfaces/utils';
 import { ResultsLocation } from '../../src/interfaces/locations';
 
-const successId = 98;
-const failedId = 200;
-
 describe('LocationController - Update', () => {
+   const successId = 98;
+   const failedId = 200;
+
    beforeAll(async () => {
       logger.info('start update tests');
       await location.listPagination();

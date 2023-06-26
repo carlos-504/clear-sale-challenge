@@ -5,10 +5,11 @@ import location from '../../src/controllers/Location';
 import { ResponseInt } from '../../src/interfaces/utils';
 import { ResultsLocation } from '../../src/interfaces/locations';
 
-const successId = 124;
-const failedId = 200;
 
 describe('LocationController - Delete by Id', () => {
+   const successId = 124;
+   const failedId = 200;
+   
    beforeAll(async () => {
       logger.info('start tests delete by id');
       await location.listPagination();

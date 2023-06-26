@@ -6,9 +6,9 @@ import location from '../../src/controllers/Location';
 import { ResponseInt } from '../../src/interfaces/utils';
 import { ResultsLocation } from '../../src/interfaces/locations';
 
-let id: number;
-
 describe('LocationController - Insert', () => {
+   let id: number;
+
    beforeAll(async () => {
       logger.info('start insert tests');
       id = (await location.listPagination()) + 1;
