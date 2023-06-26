@@ -4,6 +4,7 @@ import Utils from '../utils';
 import logger from '../config/logger';
 import ClearError from '../errors/clearError';
 import { RespListLocation, ResultsLocation, InputLocationReq, QueryReq } from '../interfaces/locations';
+import { LOADIPHLPAPI } from 'dns';
 
 class Location {
    private static apiUrl: string;
@@ -33,7 +34,9 @@ class Location {
          const startIndex = (page - 1) * PER_PAGE;
          const endIndex = startIndex + PER_PAGE;
 
+         logger.info('querying locations');
          const newItems = Location.locationsItems.slice(startIndex, endIndex);
+         logger.info('query concluded');
 
          if (!newItems.length) {
             description = 'Nenhum local encontrado';
@@ -63,9 +66,11 @@ class Location {
          const { id } = req.params;
          let description = 'Local listado com sucesso';
 
+         logger.info('querying location');
          const newItem = Location.locationsItems.filter((item) => {
             return item.id == id;
          });
+         logger.info('query concluded');
 
          if (!newItem.length) {
             throw new ClearError({
@@ -102,12 +107,14 @@ class Location {
 
          Utils.validatesFieldsLocations(req.body);
 
+         logger.info('inserting location');
          locationsItems.push({
             id,
             ...req.body,
             url: `${Location.apiUrl}/location/${id}`,
             created: new Date(),
          });
+         logger.info('insert concluded');
 
          const itemIndex = locationsItems.length - 1;
 
@@ -137,7 +144,7 @@ class Location {
             Location.locationsItems.push(...locations.data.results);
          }
       } catch (err) {
-         logger.error('error on pagination');
+         logger.error('error on integration');
          logger.error(err);
 
          if (err instanceof AxiosError) {
@@ -156,6 +163,7 @@ class Location {
 
          Utils.validatesFieldsLocations(req.body as ResultsLocation);
 
+         logger.info('updating locations');
          Location.locationsItems = Location.locationsItems.map((location) => {
             if (id == location.id) {
                location = {
@@ -167,6 +175,7 @@ class Location {
             }
             return location;
          });
+         logger.info('update concluded');
 
          const updateLocal = Location.locationsItems.filter((item) => item.id == id);
 
@@ -204,6 +213,7 @@ class Location {
 
          const verify = Location.locationsItems.some((location) => location.id == id);
 
+         logger.info('deleting location');
          if (!verify) {
             throw new ClearError({
                message: `the location of id ${id} not found`,
@@ -211,6 +221,7 @@ class Location {
                description: `O local de id ${id} não existe`,
             });
          }
+         logger.info('deleting location');
 
          Location.locationsItems = Location.locationsItems.filter((location) => location.id != id);
 
