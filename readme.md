@@ -62,6 +62,9 @@ yarn job
     		|-- test (Testes unitários)
     		|-- .env (Variáveis de ambiente)
     		|-- .env.example (Exemplo das variáveis de ambiente)
+    		|-- .gitignore (Arquivos ignorados no versionamento)
+    		|-- docker-compose.yml (Confirguração do docker compose)
+    		|-- Dockefile (Configuração de build da imagem)
     		|-- jest.config.ts (Configuração dos teste unitários)
     		|-- package.json
     		|-- server.ts (Arquivo de inicialização)
