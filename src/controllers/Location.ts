@@ -159,7 +159,7 @@ class Location {
          Location.locationsItems = Location.locationsItems.map((location) => {
             if (id == location.id) {
                location = {
-                  id,
+                  id: parseInt(id.toString()),
                   ...req.body,
                   url: location.url,
                   created: location.created,
