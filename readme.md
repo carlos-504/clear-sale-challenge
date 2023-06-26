@@ -4,8 +4,8 @@
 
 Baixe na sua máquina as seguintes dependências:
 
--  NodeJS
--  Typescript
+-  Docker
+-  Docker compose
 
 ## Ambiente
 
