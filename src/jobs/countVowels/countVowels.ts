@@ -4,7 +4,7 @@ const countVowels = (word: string, cb: (count: number) => void): void => {
    logger.info('start job');
    const vowels = ['a', 'e', 'i', 'o', 'u'];
 
-   logger.info('countig vowels');
+   logger.info('counting vowels');
    const volwelsWOrd = word.split('').filter((letter) => vowels.includes(letter.toLocaleLowerCase()));
    logger.info('completed vowel count');
 
