@@ -48,13 +48,6 @@ class Location {
          logger.error('list locations failed');
          logger.error(err);
 
-         if (err instanceof AxiosError) {
-            const ret = Utils.responseFail(title, 'Erro ao executar integração', err.message);
-
-            logger.info('end request');
-            return res.status(err.response?.status!).send(ret);
-         }
-
          const { message, statusCode } = Utils.getErrorMessage(err);
          const ret = Utils.responseFail(title, message, err);
 
@@ -146,6 +139,10 @@ class Location {
       } catch (err) {
          logger.error('error on pagination');
          logger.error(err);
+
+         if (err instanceof AxiosError) {
+            throw new ClearError({ message: err.message, statusCode: 400, description: 'Erro na integração de dados' });
+         }
       }
       return Location.locationsItems.length;
    }
