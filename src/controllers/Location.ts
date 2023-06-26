@@ -175,7 +175,6 @@ class Location {
             }
             return location;
          });
-         logger.info('update concluded');
 
          const updateLocal = Location.locationsItems.filter((item) => item.id == id);
 
@@ -186,6 +185,8 @@ class Location {
                description: `O local de id ${id} não existe`,
             });
          }
+
+         logger.info('update concluded');
 
          const ret = Utils.responseSuccess(title, description, updateLocal[0]);
 
@@ -213,7 +214,6 @@ class Location {
 
          const verify = Location.locationsItems.some((location) => location.id == id);
 
-         logger.info('deleting location');
          if (!verify) {
             throw new ClearError({
                message: `the location of id ${id} not found`,
@@ -221,9 +221,10 @@ class Location {
                description: `O local de id ${id} não existe`,
             });
          }
+         
          logger.info('deleting location');
-
          Location.locationsItems = Location.locationsItems.filter((location) => location.id != id);
+         logger.info('deleting location');
 
          const ret = Utils.responseSuccess(title, description, null);
 
